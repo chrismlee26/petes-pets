@@ -6,25 +6,26 @@ block content
     .col-sm-6
       legend New Pet
       form(action="#" id="new-pet")
+        p <span style='color: red'>*</span> required fields
         .form-group
-            label Name*
+            label Name<span style='color: red'>*</span>
             input.form-control(name="name" required)
         .form-group
-            label Birthday*
+            label Birthday<span style='color: red'>*</span>
             input.form-control(name="birthday" required)
         .form-group
-            label Species*
+            label Species<span style='color: red'>*</span>
             input.form-control(name="species" required)
         .form-group
-            label Rectangular Image URL*
+            label Rectangular Image URL<span style='color: red'>*</span>
             input.form-control(name="picUrl" required type="url") 
         .form-group
-            label Square Image URL*
+            label Square Image URL<span style='color: red'>*</span>
             input.form-control(name="picUrlSq" required type="url")   
         .form-group
-            label Favorite Food*
+            label Favorite Food<span style='color: red'>*</span>
             input.form-control(name="favoriteFood" required) 
         .form-group
-            label Description*
+            label Description<span style='color: red'>*</span>
             textarea.form-control(name="description" required minLength="140")   
         button(type="submit").btn.btn-primary Save
