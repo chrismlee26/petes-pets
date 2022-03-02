@@ -57,10 +57,21 @@ module.exports = (app) => {
 
   // Search Pet
   app.get("/search", (req, res) => {
-    searchTerm = new RegExp(req.query.term, "i");
+    const searchTerm = new RegExp(req.query.term, "i");
+    const page = req.query.page || 1;
 
-    Pet.find({ $or: [{ name: searchTerm }, { species: searchTerm }] }).exec((err, pets) => {
-      res.render("pets-index", { pets: pets });
+    Pet.paginate(
+      {
+        $or: [{ name: searchTerm }, { species: searchTerm }],
+      },
+      { page: page }
+    ).then((results) => {
+      res.render("pets-index", {
+        pets: results.docs,
+        pagesCount: results.pages,
+        currentPage: page,
+        term: req.query.term,
+      });
     });
   });
 };
