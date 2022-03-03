@@ -1,5 +1,6 @@
 // MODELS
 const Pet = require("../models/pet");
+const mailer = require("../utils/mailer");
 
 // UPLOADING TO AWS S3
 const multer = require("multer");
@@ -54,7 +55,6 @@ module.exports = (app) => {
             var urlArray = image.url.split("-");
             urlArray.pop();
             var url = urlArray.join("-");
-            console.log(`-----> THIS IS THE URL: ${url}`);
             pet.avatarUrl = url;
             pet.save();
           });
@@ -123,8 +123,8 @@ module.exports = (app) => {
       });
     });
   });
-  // Purchase Pet
 
+  // Purchase Pet
   app.post("/pets/:id/purchase", (req, res) => {
     console.log(req.body);
     // Set your secret key: remember to change this to your live secret key in production
@@ -152,7 +152,12 @@ module.exports = (app) => {
           source: token,
         })
         .then((chg) => {
-          res.redirect(`/pets/${req.params.id}`);
+          const user = {
+            email: req.body.stripeEmail,
+            amount: chg.amount,
+            petName: pet.name,
+          };
+          mailer.sendMail(user, req, res);
         })
         .catch((err) => {
           console.log("Error:" + err);
@@ -160,4 +165,3 @@ module.exports = (app) => {
     });
   });
 };
-
