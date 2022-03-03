@@ -1,31 +1,27 @@
 extends layout
 
 block content
-    
+
   .row.justify-content-center
     .col-sm-6
       legend New Pet
       form(action="#" id="new-pet")
-        p <span style='color: red'>*</span> required fields
         .form-group
-            label Name<span style='color: red'>*</span>
-            input.form-control(name="name" required)
+            label Name*
+            input.form-control(name="name")
         .form-group
-            label Birthday<span style='color: red'>*</span>
-            input.form-control(name="birthday" required)
+            label Birthday*
+            input.form-control(name="birthday")
         .form-group
-            label Species<span style='color: red'>*</span>
-            input.form-control(name="species" required)
+            label Species*
+            input.form-control(name="species")
         .form-group
-            label Rectangular Image URL<span style='color: red'>*</span>
-            input.form-control(name="picUrl" required type="url") 
+            label Avatar*
+            input.form-control(name="avatar" type="file" required)
         .form-group
-            label Square Image URL<span style='color: red'>*</span>
-            input.form-control(name="picUrlSq" required type="url")   
+            label Favorite Food*
+            input.form-control(name="favoriteFood") 
         .form-group
-            label Favorite Food<span style='color: red'>*</span>
-            input.form-control(name="favoriteFood" required) 
-        .form-group
-            label Description<span style='color: red'>*</span>
-            textarea.form-control(name="description" required minLength="140")   
+            label Description*
+            textarea.form-control(name="description")
         button(type="submit").btn.btn-primary Save

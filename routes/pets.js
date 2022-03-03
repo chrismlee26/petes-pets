@@ -1,5 +1,31 @@
 // MODELS
-const Pet = require('../models/pet');
+const Pet = require("../models/pet");
+
+// UPLOADING TO AWS S3
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
+const Upload = require("s3-uploader");
+
+const client = new Upload(process.env.S3_BUCKET, {
+  aws: {
+    path: "pets/avatar",
+    region: process.env.S3_REGION,
+    acl: "public-read",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+  cleanup: {
+    versions: true,
+    original: true,
+  },
+  versions: [
+    {
+      maxWidth: 400,
+      aspect: "16:10",
+      suffix: "-standard",
+    },
+  ],
+});
 
 // PET ROUTES
 module.exports = (app) => {
@@ -11,16 +37,38 @@ module.exports = (app) => {
   });
 
   // CREATE PET
-  app.post("/pets", (req, res) => {
+  app.post("/pets", upload.single("avatar"), (req, res, next) => {
+    console.log(req.file);
     var pet = new Pet(req.body);
+    pet.save(function (err) {
+      if (req.file) {
+        // Upload the images
+        client.upload(req.file.path, {}, function (err, versions, meta) {
+          console.log(`VERSIONS: ${versions}`);
+          if (err) {
+            return res.status(400).send({ err: err });
+          }
 
-    pet.save()
-      .then((pet) => {
+          // Pop off the -square and -standard and just use the one URL to grab the image
+          versions.forEach(function (image) {
+            var urlArray = image.url.split("-");
+            urlArray.pop();
+            var url = urlArray.join("-");
+            console.log(`-----> THIS IS THE URL: ${url}`);
+            pet.avatarUrl = url;
+            pet.save();
+          });
+
+          res.send({ pet: pet });
+        });
+      } else {
         res.send({ pet: pet });
-      })
-      .catch((err) => {
-        res.status(400).send(err.errors);
-      });
+      }
+
+      if (err) {
+        console.log(err);
+      }
+    });
   });
 
   // SHOW PET
@@ -44,7 +92,7 @@ module.exports = (app) => {
         res.redirect(`/pets/${pet._id}`);
       })
       .catch((err) => {
-        res.status(400).send(err.errors);
+        // Handle Errors
       });
   });
 
@@ -58,6 +106,7 @@ module.exports = (app) => {
   // Search Pet
   app.get("/search", (req, res) => {
     const searchTerm = new RegExp(req.query.term, "i");
+
     const page = req.query.page || 1;
 
     Pet.paginate(
